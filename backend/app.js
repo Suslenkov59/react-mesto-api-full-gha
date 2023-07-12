@@ -1,11 +1,16 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
 const { errors } = require('celebrate');
 
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
+
 const { PORT = 3000 } = process.env;
+const cors = require('cors');
 const app = express();
+app.use(cors());
 
 const mainRouter = require('./routes/index');
 
@@ -23,14 +28,21 @@ app.use(express.json());
 app.use(limiter);
 app.use(helmet());
 
+app.use(requestLogger);
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
 // Основные рабочие роуты
 app.use(mainRouter);
-
+app.use(errorLogger);
 // Обработчик ответов
 app.use(errors());
 app.use(responseHandler);
 
 // Служебная информация: адрес запущенного сервера
 app.listen(PORT, () => {
-  console.log(`Адрес сервера — ${PORT}`);
+  console.log(`Сервер успешно запущен`);
 });
