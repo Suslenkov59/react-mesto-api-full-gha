@@ -9,8 +9,8 @@
 
 ## Ссылки на проект
 
-IP-адрес x.x.x.x
+IP-адрес 84.252.129.240
 
-Frontend https://...
+Frontend https://antonsuslenkov.nomoredomains.work
 
-Backend https://...
+Backend https://api.antonsuslenkov.nomoredomains.work
