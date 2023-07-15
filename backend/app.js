@@ -26,7 +26,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 // Автоматически проставлять заголовки безопасности
 app.use(express.json());
-app.use(limiter);
 app.use(helmet());
 
 app.use(requestLogger);
@@ -35,6 +34,8 @@ app.get('/crash-test', () => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
+
+app.use(limiter);
 
 // Основные рабочие роуты
 app.use(mainRouter);
