@@ -1,4 +1,5 @@
 require('dotenv').config();
+const cors = require('cors');
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
@@ -8,7 +9,6 @@ const helmet = require('helmet');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
-const cors = require('cors');
 
 const app = express();
 app.use(cors());
@@ -45,5 +45,5 @@ app.use(responseHandler);
 
 // Служебная информация: адрес запущенного сервера
 app.listen(PORT, () => {
-  console.log(`Сервер успешно запущен`);
+  console.log('Сервер успешно запущен');
 });
