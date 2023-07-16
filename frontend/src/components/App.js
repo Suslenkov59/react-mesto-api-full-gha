@@ -38,7 +38,7 @@ function App() {
         loggedIn &&
         Promise.all([ api.getUserInfo(), api.getInitialCards()] )
             .then(([user, cards]) => {
-                setCurrentUser(currentUser.data);
+                setCurrentUser(user.data);
                 console.log(cards, 'checking')
                 setCards(cards.data);
                 setDataIsLoaded(true);
@@ -132,8 +132,9 @@ function App() {
 
     function handleUpdateAvatar(userData) {
         api.setUserAvatar(userData)
-            .then((data) => {
-                setCurrentUser(data.avatar)
+            .then((user) => {
+                console.log(user, 'AVATARUSER')
+                setCurrentUser(user.data)
                 closeAllPopups()
             })
             .catch((err) => console.log(err))

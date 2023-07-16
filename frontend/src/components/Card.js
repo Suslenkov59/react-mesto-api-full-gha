@@ -5,8 +5,8 @@ function Card(props) {
 
     console.log(props.card, 'card1')
     const currentUser = React.useContext(CurrentUserContext)
-    const isOwn = props.card.owner === currentUser._id
-    const isLiked = props.card.likes.some(i => i === currentUser._id)
+    const isOwn = props.card.owner._id === currentUser._id
+    const isLiked = Array.isArray(props.card.likes) && props.card.likes.some(i => i === currentUser._id);
     console.log(currentUser, 'user2')
     const cardDeleteButtonClassName = (
         `element__delete-button ${isOwn ? '' : 'element__delete-button_hidden'}`
@@ -35,7 +35,7 @@ function Card(props) {
                 <h2 className="element__name">{props.card.name}</h2>
                 <div className="element__like-area">
                     <button className={cardLikeButtonClassName} type="button" onClick={handleLikeClick}></button>
-                    <p className="element__like-counter">{props.card.likes.length}</p>
+                    <p className="element__like-counter">{Array.isArray(props.card.likes) && props.card.likes.length}</p>
                 </div>
             </div>
         </div>
