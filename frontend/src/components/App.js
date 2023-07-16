@@ -71,6 +71,7 @@ function App() {
     function handleRegistration(password, email) {
         auth.register(password, email)
             .then((result) => {
+                console.log(result)
                 setEmail(result.data.email)
                 setMessage({imgPath: success, text: 'Вы успешно зарегистрировались!'})
             })
