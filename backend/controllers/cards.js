@@ -16,6 +16,7 @@ const { SUCCESS_CREATED } = require('../utils/response-status');
 /* Получение списка карточек */
 const getCards = (req, res, next) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((cardList) => res.send({ data: cardList }))
     .catch((error) => next(error));
 };
@@ -57,6 +58,7 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .populate('likes')
     .then((selectedCard) => {
       if (selectedCard) {
         res.send({ data: selectedCard });

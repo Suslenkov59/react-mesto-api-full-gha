@@ -5,7 +5,7 @@ function Card(props) {
 
     console.log(props.card, 'card1')
     const currentUser = React.useContext(CurrentUserContext)
-    const isOwn = props.card.owner._id === currentUser._id
+    const isOwn = props.card.owner === currentUser._id
     const isLiked = Array.isArray(props.card.likes) && props.card.likes.some(i => i === currentUser._id);
     console.log(currentUser, 'user2')
     const cardDeleteButtonClassName = (
