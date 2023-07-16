@@ -34,6 +34,8 @@ function App() {
 
     const navigate = useNavigate();
 
+    /*ВСЕ ФУНКЦИИ РАБОТЧИЕ, ТОЛЬКО ДОБАВЛЕНИЕ КАРТИНКИ И ЛАЙК КРАШАТ СИСТЕМУ, ПОСЛЕ ПЕРЕЗАГРУЗКИ ВСЕ КОРРЕКТНО ОТОБРАЖАЕТСЯ */
+
     useEffect(() => {
         loggedIn &&
         Promise.all([ api.getUserInfo(), api.getInitialCards()] )
