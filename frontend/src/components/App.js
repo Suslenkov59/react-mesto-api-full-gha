@@ -46,7 +46,7 @@ function App() {
         if (loggedIn) {
             api.getUserInfo()
                 .then((user) => {
-                    setCurrentUser(user.userList)
+                    setCurrentUser(user.selectedUser)
                 })
                 .catch((err) => console.log(err))
         }
@@ -61,7 +61,7 @@ function App() {
             .then((res) => {
                 if (res) {
                     setLoggedIn(true)
-                    setEmail(res.userList.email)
+                    setEmail(res.selectedUser.email)
                     navigate("/")
                 }
             })
