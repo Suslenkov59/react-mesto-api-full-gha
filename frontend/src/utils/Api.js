@@ -19,7 +19,6 @@ class Api {
     /*инициализация карточек с сервера*/
     getInitialCards() {
         return this._request(`${this._url}cards`, {
-            credentials: 'include',
             headers: this._headers
         })
     }
@@ -27,7 +26,6 @@ class Api {
     /*добавление новой карочки*/
     addNewUserCard({ name, link }) {
         return this._request(`${this._url}cards`, {
-            credentials: 'include',
             method: 'POST',
             headers: this._headers,
             body: JSON.stringify({ name, link })
@@ -37,7 +35,6 @@ class Api {
     /*удаление карточки*/
     deleteCard(cardId) {
         return this._request(`${this._url}cards/${cardId}`, {
-            credentials: 'include',
             method: 'DELETE',
             headers: this._headers
         })
@@ -46,7 +43,6 @@ class Api {
     /*получение данных пользователя*/
     getUserInfo() {
         return this._request(`${this._url}users/me`, {
-            credentials: 'include',
             headers: this._headers
         })
     }
@@ -54,7 +50,6 @@ class Api {
     /*отправка данных пользователя*/
     setUserInfoApi(userName, userAbout) {
         return this._request(`${this._url}users/me`, {
-            credentials: 'include',
             method: 'PATCH',
             headers: this._headers,
             body: JSON.stringify({
@@ -67,7 +62,6 @@ class Api {
     /*обновление аватара*/
     setUserAvatar(data) {
         return this._request(`${this._url}users/me/avatar`, {
-            credentials: 'include',
             method: 'PATCH',
             headers: this._headers,
             body: JSON.stringify({
@@ -79,7 +73,6 @@ class Api {
     /*лайк*/
     changeLikeCardStatus(cardId, isLiked) {
         return this._request(`${this._url}cards/${cardId}/likes`, {
-            credentials: 'include',
             method: `${isLiked ? 'PUT' : 'DELETE'}`,
             headers: this._headers
         })
@@ -89,7 +82,6 @@ class Api {
 /*Api*/
 export const api = new Api({
     url: 'https://api.antonsuslenkov.nomoredomains.work',
-    credentials: 'include',
     headers: {
         'Content-Type': 'application/json'
     }

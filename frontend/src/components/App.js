@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
 import {Route, Routes, Navigate, useNavigate} from 'react-router-dom';
 import {api} from '../utils/Api'
-import {apiAuth} from '../utils/auth'
 import {CurrentUserContext} from '../contexts/CurrentUserContext'
 import ProtectedRoute from "./ProtectedRoute";
 import Header from "./Header";
@@ -14,6 +13,7 @@ import EditAvatarPopup from './EditAvatarPopup'
 import AddPlacePopup from './AddPlacePopup'
 import Login from "./Login";
 import Register from "./Register";
+import * as auth from '../utils/auth'
 import InfoTooltip from './InfoTooltip'
 import success from '../images/success.svg'
 import unSuccess from '../images/unsuccess.svg'
@@ -29,30 +29,47 @@ function App() {
     const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false)
     const [message, setMessage] = useState({imgPath: '', text: ''})
     const [email, setEmail] = useState('')
+    const [dataIsLoaded, setDataIsLoaded] = useState(false);
+    const [dataLoadingError, setDataLoadingError] = useState("");
 
     const navigate = useNavigate();
 
-    useEffect( () => {
-        const token = localStorage.getItem('token');
-        if (token) { Promise.all([ api.getUserInfo(), api.getInitialCards() ])
-            .then(( [ userItem, initialCards] ) => {
-                setCurrentUser(userItem);
-                setCards(initialCards);
+    useEffect(() => {
+        loggedIn &&
+        Promise.all([ api.getUserInfo(), api.getInitialCards()] )
+            .then(([user, cards]) => {
+                setCurrentUser(user);
+                setCards(cards);
+                setDataIsLoaded(true);
             })
-            .catch( (err) => { console.log(`Возникла глобальная ошибка, ${err}`) })
-        }
-    }, [loggedIn])
+            .catch((err) => {
+                setDataLoadingError(`Что-то пошло не так... (${err})`);
+                console.log(err);
+            });
+    }, [loggedIn]);
 
-    useEffect( () => {
-        const token = localStorage.getItem('userToken');
-        if (token) { apiAuth.getContent(token)
-            .then( (res) => { setLoggedIn(true); setEmail(res.email); navigate('/') })
-            .catch( (err) => { localStorage.removeItem('userToken'); console.log(`Возникла ошибка верификации токена, ${err}`) })
+    useEffect(() => {
+        handleTokenCheck()
+    }, [])
+
+    function handleTokenCheck() {
+        const jwt = localStorage.getItem('jwt')
+
+        if (jwt) {
+            auth.getContent(jwt)
+                .then((res) => {
+                    if (res) {
+                        setLoggedIn(true)
+                        setEmail(res.data.email)
+                        navigate("/")
+                    }
+                })
+                .catch((err) => console.log(err))
         }
-    }, [navigate("/"), loggedIn])
+    }
 
     function handleRegistration(password, email) {
-        apiAuth.register(password, email)
+        auth.register(password, email)
             .then((result) => {
                 setEmail(result.data.email)
                 setMessage({imgPath: success, text: 'Вы успешно зарегистрировались!'})
@@ -62,14 +79,13 @@ function App() {
     }
 
     function handleAuth(password, email) {
-        apiAuth.authorize(password, email)
-            .then((token) => {
-                apiAuth.getContent(token)
-                    .then((res) => {
-                        setEmail(email)
-                        setLoggedIn(true)
-                        navigate("/")
-                    })
+        auth.authorize(password, email)
+            .then((res) => {
+                if (res) {
+                    setEmail( email)
+                    setLoggedIn(true)
+                    navigate("/")
+                }
             })
             .catch((err) => console.log(err))
     }
@@ -77,9 +93,6 @@ function App() {
     function onSignOut() {
         localStorage.removeItem('jwt')
         setLoggedIn(false)
-        setCards([])
-        setCurrentUser({})
-        navigate("/")
     }
 
     function handleEditAvatarClick() {
@@ -173,6 +186,8 @@ function App() {
                                 onCardLike={handleCardLike}
                                 onCardDelete={handleCardDelete}
                                 cards={cards}
+                                dataIsLoaded={dataIsLoaded}
+                                dataLoadingError={dataLoadingError}
                             />
                         }
                     />
