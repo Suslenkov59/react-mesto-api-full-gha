@@ -36,9 +36,9 @@ function App() {
 
     useEffect(() => {
         loggedIn &&
-        Promise.all([api.getUserInfo(), api.getInitialCards()])
+        Promise.all([ api.getUserInfo(), api.getInitialCards()] )
             .then(([user, cards]) => {
-                setCurrentUser(user.currentUser);
+                setCurrentUser(user);
                 setCards(cards);
                 setDataIsLoaded(true);
             })
@@ -53,15 +53,19 @@ function App() {
     }, [])
 
     function handleTokenCheck() {
-        auth.getContent()
-            .then((res) => {
-                if (res) {
-                    setLoggedIn(true)
-                    setEmail(res.currentUser.email)
-                    navigate("/")
-                }
-            })
-            .catch((err) => console.log(err))
+        const jwt = localStorage.getItem('jwt')
+
+        if (jwt) {
+            auth.getContent(jwt)
+                .then((res) => {
+                    if (res) {
+                        setLoggedIn(true)
+                        setEmail(res.data.email)
+                        navigate("/")
+                    }
+                })
+                .catch((err) => console.log(err))
+        }
     }
 
     function handleRegistration(password, email) {
@@ -76,13 +80,12 @@ function App() {
 
     function handleAuth(password, email) {
         auth.authorize(password, email)
-            .then((token) => {
-                auth.getContent(token)
-                    .then((res) => {
-                        setEmail(res.currentUser.email)
-                        setLoggedIn(true)
-                        navigate("/")
-                    })
+            .then((res) => {
+                if (res) {
+                    setEmail(email)
+                    setLoggedIn(true)
+                    navigate("/")
+                }
             })
             .catch((err) => console.log(err))
     }
@@ -135,18 +138,18 @@ function App() {
     }
 
     function handleCardLike(card) {
-        const isLiked = card.likes.some((like) => like === currentUser._id);
+        const isLiked = card.likes.some((like) => like === currentUser._id );
         api.changeLikeCardStatus(card._id, !isLiked)
-            .then((cardItem) => {
-                setCards((listCards) => listCards.map((item) => (item._id === card._id ? cardItem : item)));
+            .then( (cardItem) => {
+                setCards( (listCards) => listCards.map( (item) => (item._id === card._id ? cardItem : item) ) );
             })
             .catch((err) => console.log(err))
     }
 
     function handleCardDelete(card) {
         api.deleteCard(card._id)
-            .then(() => {
-                setCards((listCards) => listCards.filter((cardItem) => cardItem._id !== card._id));
+            .then( () => {
+                setCards( (listCards) => listCards.filter((cardItem) => cardItem._id !== card._id));
             })
             .catch((err) => console.log(err))
     }

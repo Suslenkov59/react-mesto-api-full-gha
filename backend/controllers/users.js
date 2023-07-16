@@ -108,7 +108,6 @@ const getUserProfile = (req, res, next) => {
         next(new NotFound('Пользователь по указанному _id не найден'));
       } else { res.send({ data: selectedUser }); }
     })
-    .then((currentUser) => res.send({ currentUser }))
     .catch((error) => { next(error); });
 };
 
