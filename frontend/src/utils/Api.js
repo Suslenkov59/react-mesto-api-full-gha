@@ -83,7 +83,6 @@ class Api {
 export const api = new Api({
     url: 'https://api.antonsuslenkov.nomoredomains.work',
     headers: {
-        authorization: 'ad4fae2f-d7ab-477d-ba24-14b2b213433b',
         'Content-Type': 'application/json'
     }
 })
