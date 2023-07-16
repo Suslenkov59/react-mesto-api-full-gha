@@ -53,19 +53,16 @@ function App() {
     }, [])
 
     function handleTokenCheck() {
-        const jwt = localStorage.getItem('jwt')
+        auth.getContent()
+            .then((res) => {
+                if (res) {
+                    setLoggedIn(true)
+                    setEmail(res.userList.email)
+                    navigate("/")
+                }
+            })
+            .catch((err) => console.log(err))
 
-        if (jwt) {
-            auth.getContent(jwt)
-                .then((res) => {
-                    if (res) {
-                        setLoggedIn(true)
-                        setEmail(res.data.email)
-                        navigate("/")
-                    }
-                })
-                .catch((err) => console.log(err))
-        }
     }
 
     function handleRegistration(password, email) {
@@ -80,12 +77,13 @@ function App() {
 
     function handleAuth(password, email) {
         auth.authorize(password, email)
-            .then((res) => {
-                if (res) {
-                    setEmail( email)
-                    setLoggedIn(true)
-                    navigate("/")
-                }
+            .then((token) => {
+                auth.getContent(token)
+                    .then((res) => {
+                        setEmail(res.userList.email)
+                        setLoggedIn(true)
+                        navigate("/")
+                    })
             })
             .catch((err) => console.log(err))
     }
