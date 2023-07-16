@@ -29,24 +29,28 @@ function App() {
     const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false)
     const [message, setMessage] = useState({imgPath: '', text: ''})
     const [email, setEmail] = useState('')
-    const [dataIsLoaded, setDataIsLoaded] = useState(false);
-    const [dataLoadingError, setDataLoadingError] = useState("");
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        loggedIn &&
-        Promise.all([ api.getUserInfo(), api.getInitialCards()] )
-            .then(([user, cards]) => {
-                setCurrentUser(user);
-                setCards(cards);
-                setDataIsLoaded(true);
-            })
-            .catch((err) => {
-                setDataLoadingError(`Что-то пошло не так... (${err})`);
-                console.log(err);
-            });
-    }, [loggedIn]);
+        if (loggedIn) {
+            api.getInitialCards()
+                .then((cardsObj) => {
+                    setCards(cardsObj.data.reverse())
+                })
+                .catch((err) => console.log(err))
+        }
+    }, [loggedIn])
+
+    useEffect(() => {
+        if (loggedIn) {
+            api.getUserInfo()
+                .then((user) => {
+                    setCurrentUser(user.userList)
+                })
+                .catch((err) => console.log(err))
+        }
+    }, [loggedIn])
 
     useEffect(() => {
         handleTokenCheck()
@@ -89,8 +93,12 @@ function App() {
     }
 
     function onSignOut() {
+        auth.logout()
         localStorage.removeItem('jwt')
         setLoggedIn(false)
+        setCards([])
+        setCurrentUser({})
+        navigate("/")
     }
 
     function handleEditAvatarClick() {
@@ -184,8 +192,6 @@ function App() {
                                 onCardLike={handleCardLike}
                                 onCardDelete={handleCardDelete}
                                 cards={cards}
-                                dataIsLoaded={dataIsLoaded}
-                                dataLoadingError={dataLoadingError}
                             />
                         }
                     />

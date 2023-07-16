@@ -32,6 +32,16 @@ export const authorize = (password, email) => {
         })
 }
 
+export const logout = () => {
+    return fetch(`${BASE_URL}/logout`, {
+        credentials: 'include',
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}
+
 export const getContent = token => {
     return fetch(`${BASE_URL}/users/me`, {
         credentials: 'include',
