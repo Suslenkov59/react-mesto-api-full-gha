@@ -9,7 +9,7 @@
 
 ## Ссылки на проект
 
-IP 158.160.63.238
+IP 51.250.83.201
 
 Frontend https://antonsuslenkov.nomoredomains.work
 
