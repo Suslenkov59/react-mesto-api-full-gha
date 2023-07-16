@@ -1,7 +1,7 @@
-import {useEffect, useState} from 'react';
-import {Route, Routes, Navigate, useNavigate} from 'react-router-dom';
-import {api} from '../utils/Api'
-import {CurrentUserContext} from '../contexts/CurrentUserContext'
+import { useEffect, useState } from 'react';
+import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { api } from '../utils/Api'
+import { CurrentUserContext } from '../contexts/CurrentUserContext'
 import ProtectedRoute from "./ProtectedRoute";
 import Header from "./Header";
 import Main from "./Main";
@@ -27,7 +27,7 @@ function App() {
     const [currentUser, setCurrentUser] = useState({})
     const [loggedIn, setLoggedIn] = useState(false)
     const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false)
-    const [message, setMessage] = useState({imgPath: '', text: ''})
+    const [message, setMessage] = useState({ imgPath: '', text: '' })
     const [email, setEmail] = useState('')
     const [dataIsLoaded, setDataIsLoaded] = useState(false);
     const [dataLoadingError, setDataLoadingError] = useState("");
@@ -35,29 +35,23 @@ function App() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        loggedIn &&
-        Promise.all([ api.getUserInfo(), api.getInitialCards()] )
-            .then(([user, cards]) => {
-                setCurrentUser(user.data);
-                setCards(cards.data);
-                setDataIsLoaded(true);
-            })
-            .catch((err) => {
-                setDataLoadingError(`Что-то пошло не так... (${err})`);
-                console.log(err);
-            });
+        if (loggedIn && localStorage.getItem('jwt')) {
+            Promise.all([api.getUserInfo(), api.getInitialCards()])
+                .then(([user, cards]) => {
+                    setCurrentUser(user.data);
+                    setCards(cards.data);
+                    setDataIsLoaded(true);
+                })
+                .catch((err) => {
+                    setDataLoadingError(`Что-то пошло не так... (${err})`);
+                    console.log(err);
+                });
+        }
     }, [loggedIn]);
-
-    /*я понял что что что я отправляю с бекенда не при создании карточки в стейт попадает не чисто card,
-     а что то другое, из-за этого нет доступа к _id, а после перезагрузки страницы подгружается уже другой массив с сервера
-     вообще странно, что при регистрации все присходит наоборот, хотя ни одной ошибки нет
-     при выходе у меня прописано удалять токен но он убирается после перезагрузки
-     у меня определённо проблемы с вложенностью*/
-
 
     useEffect(() => {
         handleTokenCheck()
-    }, [])
+    }, [loggedIn])
 
     function handleTokenCheck() {
         const jwt = localStorage.getItem('jwt')
@@ -77,19 +71,28 @@ function App() {
 
     function handleRegistration(password, email) {
         auth.register(password, email)
-            .then((result) => {
-                setEmail(result.data.email)
-                setMessage({imgPath: success, text: 'Вы успешно зарегистрировались!'})
+            .then((currentUser) => {
+                if (!currentUser) { // предполагаем, что сервер возвращает поле error при ошибке
+                    setMessage({ imgPath: unSuccess, text: 'Что-то пошло не так! Попробуйте ещё раз.' })
+                    throw new Error("Error, in register ._.")
+                } else {
+                    setEmail(currentUser.data.email)
+                    setMessage({ imgPath: unSuccess, text: 'Что-то пошло не так! Попробуйте ещё раз.' })
+                    setIsInfoTooltipOpen(true)
+                }
             })
-            .catch(() => setMessage({imgPath: unSuccess, text: 'Что-то пошло не так! Попробуйте ещё раз.'}))
+            .catch(() => {
+                setMessage({ imgPath: success, text: "Вы успешно зарегистрировались!" })
+                setIsInfoTooltipOpen(true)
+            })
     }
 
     function handleAuth(password, email) {
         auth.authorize(password, email)
             .then((res) => {
                 if (res) {
-                    setEmail( email)
-                    setLoggedIn(true)
+                    setEmail(email)
+                    if (localStorage.getItem('jwt')) {setLoggedIn (true)}
                     navigate("/")
                 }
             })
@@ -98,6 +101,7 @@ function App() {
 
     function onSignOut() {
         localStorage.removeItem('jwt')
+        setEmail("");
         setLoggedIn(false)
     }
 
@@ -144,26 +148,30 @@ function App() {
     }
 
     function handleCardLike(card) {
-        const isLiked = card.likes.some((like) => like === currentUser._id );
+        const isLiked = card.likes.some((like) => like.toString() === currentUser._id.toString());
+
         api.changeLikeCardStatus(card._id, !isLiked)
-            .then( (cardItem) => {
-                setCards( (listCards) => listCards.map( (item) => (item._id === card._id ? cardItem.data : item) ) );
+            .then((cardItem) => {
+                setCards((listCards) =>
+                    listCards.map((item) => (item._id === card._id ? cardItem.data : item))
+                );
             })
-            .catch((err) => console.log(err))
+            .catch((err) => console.log(err));
     }
 
     function handleCardDelete(card) {
         api.deleteCard(card._id)
-            .then( () => {
-                setCards( (listCards) => listCards.filter((cardItem) => cardItem._id !== card._id));
+            .then(() => {
+                setCards((listCards) => listCards.filter((cardItem) => cardItem._id !== card._id));
             })
             .catch((err) => console.log(err))
     }
 
     function handleAddPlaceSubmit(cardData) {
         api.addNewUserCard(cardData)
-            .then((newCard) => {
-                setCards([newCard.cardObject, ...cards])
+            .then((response) => {
+                const newCard = response.cardObject; // достаем карточку из ответа сервера
+                setCards((currentCards) => [newCard, ...currentCards])
                 closeAllPopups()
             })
             .catch((err) => console.log(err))
@@ -214,9 +222,9 @@ function App() {
                             />
                         }
                     />
-                    <Route path="*" element={<Navigate to="/"/>}/>
+                    <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
-                < Footer/>
+                < Footer />
                 <InfoTooltip
                     name='tooltip'
                     isOpen={isInfoTooltipOpen}
