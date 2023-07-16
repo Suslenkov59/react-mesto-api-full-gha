@@ -38,7 +38,7 @@ function App() {
         loggedIn &&
         Promise.all([ api.getUserInfo(), api.getInitialCards()] )
             .then(([user, cards]) => {
-                setCurrentUser(user.data);
+                setCurrentUser(currentUser.data);
                 console.log(cards, 'checking')
                 setCards(cards.data);
                 setDataIsLoaded(true);
