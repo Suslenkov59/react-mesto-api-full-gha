@@ -83,7 +83,7 @@ class Api {
 export const api = new Api({
     url: 'https://api.antonsuslenkov.nomoredomains.work',
     headers: {
-        Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-        "Content-Type": "application/json",
-    },
-});
+        'Content-Type': 'application/json'
+    }
+})
+

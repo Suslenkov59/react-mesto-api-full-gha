@@ -71,7 +71,6 @@ function App() {
     function handleRegistration(password, email) {
         auth.register(password, email)
             .then((result) => {
-                console.log(result)
                 setEmail(result.data.email)
                 setMessage({imgPath: success, text: 'Вы успешно зарегистрировались!'})
             })
@@ -83,7 +82,7 @@ function App() {
         auth.authorize(password, email)
             .then((res) => {
                 if (res) {
-                    setEmail(email)
+                    setEmail( email)
                     setLoggedIn(true)
                     navigate("/")
                 }
