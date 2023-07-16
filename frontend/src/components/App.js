@@ -148,13 +148,13 @@ function App() {
     }
 
     function handleCardLike(card) {
-        const isLiked = card.likes.some(i => i.toString() === currentUser._id.toString());
+        const isLiked = card.likes.some((like) => like === currentUser._id );
 
         api.changeLikeCardStatus(card._id, !isLiked)
-            .then((newCard) => {
-                setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
+            .then( (cardItem) => {
+                setCards( (listCards) => listCards.map( (item) => (item._id === card._id ? cardItem.data : item) ) );
             })
-            .catch((err) => console.log(`Ошибка ${err}`))
+            .catch((err) => console.log(err))
     }
 
     function handleCardDelete(card) {
