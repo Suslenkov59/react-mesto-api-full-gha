@@ -34,14 +34,11 @@ function App() {
 
     const navigate = useNavigate();
 
-    /*ВСЕ ФУНКЦИИ РАБОТЧИЕ, ТОЛЬКО ДОБАВЛЕНИЕ КАРТИНКИ И ЛАЙК КРАШАТ СИСТЕМУ, ПОСЛЕ ПЕРЕЗАГРУЗКИ ВСЕ КОРРЕКТНО ОТОБРАЖАЕТСЯ !*/
-
     useEffect(() => {
         loggedIn &&
         Promise.all([ api.getUserInfo(), api.getInitialCards()] )
             .then(([user, cards]) => {
                 setCurrentUser(user.data);
-                console.log(cards, 'checking')
                 setCards(cards.data);
                 setDataIsLoaded(true);
             })
@@ -50,6 +47,14 @@ function App() {
                 console.log(err);
             });
     }, [loggedIn]);
+
+    /*я понял что что что я отправляю с бекенда не при создании карточки в стейт попадает не чисто card,
+     а что то другое, из-за этого нет доступа к _id, а после перезагрузки страницы подгружается уже другой массив с сервера
+     но как это пофиксить пока решаю
+     вообще странно, что при регистрации все присходит наоборот, хотя ни одной ошибки нет
+     при выходе у меня прописано удалять токен но он убирается после перезагрузки
+     у меня определённо проблемы с вложенностью*/
+
 
     useEffect(() => {
         handleTokenCheck()
@@ -78,7 +83,6 @@ function App() {
                 setMessage({imgPath: success, text: 'Вы успешно зарегистрировались!'})
             })
             .catch(() => setMessage({imgPath: unSuccess, text: 'Что-то пошло не так! Попробуйте ещё раз.'}))
-            .finally(() => setIsInfoTooltipOpen(true))
     }
 
     function handleAuth(password, email) {
@@ -125,7 +129,6 @@ function App() {
     function handleUpdateUser(userItem) {
         api.setUserInfoApi(userItem.name, userItem.about)
             .then((data) => {
-                console.log(data, 'data')
                 setCurrentUser(data.data)
                 closeAllPopups()
             })
@@ -135,7 +138,6 @@ function App() {
     function handleUpdateAvatar(userData) {
         api.setUserAvatar(userData)
             .then((user) => {
-                console.log(user, 'AVATARUSER')
                 setCurrentUser(user.data)
                 closeAllPopups()
             })
@@ -162,8 +164,7 @@ function App() {
     function handleAddPlaceSubmit(cardData) {
         api.addNewUserCard(cardData)
             .then((newCard) => {
-                console.log(newCard)
-                setCards([newCard, ...cards])
+                setCards([newCard.cardObject, ...cards])
                 closeAllPopups()
             })
             .catch((err) => console.log(err))

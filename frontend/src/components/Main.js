@@ -4,8 +4,6 @@ import { CurrentUserContext } from '../contexts/CurrentUserContext'
 
 function Main({onEditAvatar, onEditProfile, onAddPlace, onCardClick, onCardLike, onCardDelete, cards}) {
     const currentUser = React.useContext(CurrentUserContext)
-    console.log(currentUser, 'user')
-    console.log(cards, 'cards')
 
     return (<main className="main">
         <section className="profile">
