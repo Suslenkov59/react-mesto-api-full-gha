@@ -38,8 +38,9 @@ function App() {
         loggedIn &&
         Promise.all([ api.getUserInfo(), api.getInitialCards()] )
             .then(([user, cards]) => {
-                setCurrentUser(user);
-                setCards(cards);
+                setCurrentUser(user.data);
+                console.log(cards, 'checking')
+                setCards(cards.data);
                 setDataIsLoaded(true);
             })
             .catch((err) => {
@@ -122,7 +123,8 @@ function App() {
     function handleUpdateUser(userItem) {
         api.setUserInfoApi(userItem.name, userItem.about)
             .then((data) => {
-                setCurrentUser(data)
+                console.log(data, 'data')
+                setCurrentUser(data.data)
                 closeAllPopups()
             })
             .catch((err) => console.log(err))
@@ -131,7 +133,7 @@ function App() {
     function handleUpdateAvatar(userData) {
         api.setUserAvatar(userData)
             .then((data) => {
-                setCurrentUser(data)
+                setCurrentUser(data.avatar)
                 closeAllPopups()
             })
             .catch((err) => console.log(err))
@@ -157,6 +159,7 @@ function App() {
     function handleAddPlaceSubmit(cardData) {
         api.addNewUserCard(cardData)
             .then((newCard) => {
+                console.log(newCard)
                 setCards([newCard, ...cards])
                 closeAllPopups()
             })
