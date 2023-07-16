@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {Route, Routes, Navigate, useNavigate} from 'react-router-dom';
 import {api} from '../utils/Api'
+import {apiAuth} from '../utils/auth'
 import {CurrentUserContext} from '../contexts/CurrentUserContext'
 import ProtectedRoute from "./ProtectedRoute";
 import Header from "./Header";
@@ -13,7 +14,6 @@ import EditAvatarPopup from './EditAvatarPopup'
 import AddPlacePopup from './AddPlacePopup'
 import Login from "./Login";
 import Register from "./Register";
-import * as auth from '../utils/auth'
 import InfoTooltip from './InfoTooltip'
 import success from '../images/success.svg'
 import unSuccess from '../images/unsuccess.svg'
@@ -32,45 +32,27 @@ function App() {
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (loggedIn) {
-            api.getInitialCards()
-                .then((cardsObj) => {
-                    setCards(cardsObj.data.reverse())
-                })
-                .catch((err) => console.log(err))
-        }
-    }, [loggedIn])
-
-    useEffect(() => {
-        if (loggedIn) {
-            api.getUserInfo()
-                .then((user) => {
-                    setCurrentUser(user.selectedUser)
-                })
-                .catch((err) => console.log(err))
-        }
-    }, [loggedIn])
-
-    useEffect(() => {
-        handleTokenCheck()
-    }, [])
-
-    function handleTokenCheck() {
-        auth.getContent()
-            .then((res) => {
-                if (res) {
-                    setLoggedIn(true)
-                    setEmail(res.selectedUser.email)
-                    navigate("/")
-                }
+    useEffect( () => {
+        const token = localStorage.getItem('token');
+        if (token) { Promise.all([ api.getUserInfo(), api.getInitialCards() ])
+            .then(( [ userItem, initialCards] ) => {
+                setCurrentUser(userItem);
+                setCards(initialCards);
             })
-            .catch((err) => console.log(err))
+            .catch( (err) => { console.log(`Возникла глобальная ошибка, ${err}`) })
+        }
+    }, [loggedIn])
 
-    }
+    useEffect( () => {
+        const token = localStorage.getItem('userToken');
+        if (token) { apiAuth.getContent(token)
+            .then( (res) => { setLoggedIn(true); setEmail(res.email); navigate('/') })
+            .catch( (err) => { localStorage.removeItem('userToken'); console.log(`Возникла ошибка верификации токена, ${err}`) })
+        }
+    }, [navigate("/"), loggedIn])
 
     function handleRegistration(password, email) {
-        auth.register(password, email)
+        apiAuth.register(password, email)
             .then((result) => {
                 setEmail(result.data.email)
                 setMessage({imgPath: success, text: 'Вы успешно зарегистрировались!'})
@@ -80,11 +62,11 @@ function App() {
     }
 
     function handleAuth(password, email) {
-        auth.authorize(password, email)
+        apiAuth.authorize(password, email)
             .then((token) => {
-                auth.getContent(token)
+                apiAuth.getContent(token)
                     .then((res) => {
-                        setEmail(res.userList.email)
+                        setEmail(email)
                         setLoggedIn(true)
                         navigate("/")
                     })
@@ -93,7 +75,6 @@ function App() {
     }
 
     function onSignOut() {
-        auth.logout()
         localStorage.removeItem('jwt')
         setLoggedIn(false)
         setCards([])

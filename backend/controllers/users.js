@@ -100,10 +100,6 @@ const authorizeUser = (req, res, next) => {
     .catch((error) => next(error));
 };
 
-const logout = (req, res) => {
-  res.clearCookie('jwt').send();
-};
-
 /* Получение профиля пользователя */
 const getUserProfile = (req, res, next) => {
   User.findById(req.user._id)
@@ -123,5 +119,4 @@ module.exports = {
   updateUserAvatar,
   authorizeUser,
   getUserProfile,
-  logout,
 };

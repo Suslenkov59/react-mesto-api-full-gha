@@ -1,55 +1,55 @@
-export const BASE_URL = 'https://api.antonsuslenkov.nomoredomains.work'
+class AuthApi {
+    constructor(apiAddress) {
+        this._authUrl = apiAddress;
+    }
 
-const handleResponse = response => response.ok ? response.json() : Promise.reject(`Ошибка ${response.status}`)
+    _checkResponse(res) {
+        if (res.ok) {
+            return res.json()
+        }
+        return Promise.reject(`Ошибка: ${res.status}`)
+    }
 
-export const register = (password, email) => {
-    return fetch(`${BASE_URL}/signup`, {
-        credentials: 'include',
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({password, email})
-    })
-        .then(handleResponse)
-}
+    register(password, email) {
+        return fetch(`${this._authUrl}/signup`, {
+            credentials: 'include',
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({password, email})
+        })
+            .then(this._checkResponse)
+    }
 
-export const authorize = (password, email) => {
-    return fetch(`${BASE_URL}/signin`, {
-        credentials: 'include',
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({password, email})
-    })
-        .then(handleResponse)
-        .then((data) => {
-            if (data.token) {
-                localStorage.setItem('jwt', data.token)
-                return data.token
+    authorize(password, email) {
+        return fetch(`${this._authUrl}/signin`, {
+            credentials: 'include',
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({password, email})
+        })
+            .then(this._checkResponse)
+            .then((data) => {
+                if (data.userToken) {
+                    localStorage.setItem('userToken', data.token)
+                }
+            })
+    }
+
+    getContent(token) {
+        return fetch(`${this._authUrl}/users/me`, {
+            credentials: 'include',
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             }
         })
+            .then(this._checkResponse)
+    }
 }
 
-export const logout = () => {
-    return fetch(`${BASE_URL}/logout`, {
-        credentials: 'include',
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-}
-
-export const getContent = token => {
-    return fetch(`${BASE_URL}/users/me`, {
-        credentials: 'include',
-        method: 'GET',
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization" : `Bearer ${token}`
-        }
-    })
-        .then(handleResponse)
-}
+export const apiAuth = new AuthApi('https://api.antonsuslenkov.nomoredomains.work');
