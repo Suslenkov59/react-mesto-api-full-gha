@@ -16,7 +16,6 @@ const { SUCCESS_CREATED } = require('../utils/response-status');
 /* Получение списка карточек */
 const getCards = (req, res, next) => {
   Card.find({})
-    .populate(['owner', 'likes'])
     .then((cardList) => res.send({ data: cardList }))
     .catch((error) => next(error));
 };
@@ -25,7 +24,7 @@ const getCards = (req, res, next) => {
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((cardObject) => res.status(SUCCESS_CREATED).send({ data: cardObject }))
+    .then((cardObject) => res.status(SUCCESS_CREATED).send({ cardObject }))
     .catch((error) => {
       if (error instanceof ValidationError) {
         next(new BadRequests('Переданы некорректные данные при создании карточки'));
