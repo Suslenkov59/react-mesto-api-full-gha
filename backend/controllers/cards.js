@@ -25,7 +25,7 @@ const getCards = (req, res, next) => {
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
-    .then((cardObject) => res.status(SUCCESS_CREATED).send( cardObject ))
+    .then((cardObject) => res.status(SUCCESS_CREATED).send({ cardObject} ))
     .catch((error) => {
       if (error instanceof ValidationError) {
         next(new BadRequests('Переданы некорректные данные при создании карточки'));
@@ -58,9 +58,9 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (card) {
-        res.send({ data: card });
+    .then((selectedCard) => {
+      if (selectedCard) {
+        res.send({ data:selectedCard });
       } else { next(new NotFound('Карточка по указанному _id не найдена')); }
     })
     .catch((error) => {
@@ -77,9 +77,9 @@ const removeLike = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (card) {
-        res.send({ data: card });
+    .then((selectedCard) => {
+      if (selectedCard) {
+        res.send({ data: selectedCard });
       } else { next(new NotFound('Карточка по указанному _id не найдена')); }
     })
     .catch((error) => {

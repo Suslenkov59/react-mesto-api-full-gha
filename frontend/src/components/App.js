@@ -50,7 +50,6 @@ function App() {
 
     /*я понял что что что я отправляю с бекенда не при создании карточки в стейт попадает не чисто card,
      а что то другое, из-за этого нет доступа к _id, а после перезагрузки страницы подгружается уже другой массив с сервера
-     но как это пофиксить пока решаю
      вообще странно, что при регистрации все присходит наоборот, хотя ни одной ошибки нет
      при выходе у меня прописано удалять токен но он убирается после перезагрузки
      у меня определённо проблемы с вложенностью*/
@@ -148,7 +147,7 @@ function App() {
         const isLiked = card.likes.some((like) => like === currentUser._id );
         api.changeLikeCardStatus(card._id, !isLiked)
             .then( (cardItem) => {
-                setCards( (listCards) => listCards.map( (item) => (item._id === card._id ? cardItem : item) ) );
+                setCards( (listCards) => listCards.map( (item) => (item._id === card._id ? cardItem.data : item) ) );
             })
             .catch((err) => console.log(err))
     }
