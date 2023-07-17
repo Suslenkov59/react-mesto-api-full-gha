@@ -84,6 +84,7 @@ function App() {
             .catch(() => {
                 setMessage({ imgPath: success, text: "Вы успешно зарегистрировались!" })
                 setIsInfoTooltipOpen(true)
+                navigate("/signin")
             })
     }
 
@@ -91,12 +92,14 @@ function App() {
         auth.authorize(password, email)
             .then((res) => {
                 if (res) {
-                    setEmail(email)
+                    setIsInfoTooltipOpen(false)
                     if (localStorage.getItem('jwt')) {setLoggedIn (true)}
                     navigate("/")
                 }
             })
             .catch((err) => console.log(err))
+        setMessage({ imgPath: unSuccess, text: 'Что-то пошло не так! Попробуйте ещё раз.' })
+        setIsInfoTooltipOpen(true)
     }
 
     function onSignOut() {
